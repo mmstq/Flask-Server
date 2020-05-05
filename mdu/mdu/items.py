@@ -11,4 +11,7 @@ import scrapy
 class MduItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    index = scrapy.Field()
+    title = scrapy.Field()
+    date = scrapy.Field()
+    link = scrapy.Field()
