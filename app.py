@@ -1,6 +1,6 @@
 import crochet
 crochet.setup()
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from scrapy import signals
 from scrapy.crawler import CrawlerRunner
 from scrapy.signalmanager import dispatcher
@@ -24,16 +24,21 @@ def homepage():
 
 @app.route('/notice', methods=['GET'])
 def getNotice():
-    scrape_with_crochet()
+    query = request.args.get('from')
+    scrape_with_crochet(query)
     return output_data
 
 @crochet.wait_for(timeout=6)
-def scrape_with_crochet():
+def scrape_with_crochet(query):
     # signal fires when single item is processed
     # and calls _crawler_result to append that item
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
-    eventual = crawl_runner.crawl(
-        scrapper.UIETScrapper)
+    if query=='mdu':
+        eventual = crawl_runner.crawl(
+            scrapper.MDUScrapper)
+    else:
+        eventual = crawl_runner.crawl(
+            scrapper.UIETScrapper)
     return eventual  # returns a twisted.internet.defer.Deferred
 
 
