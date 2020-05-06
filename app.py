@@ -33,7 +33,7 @@ def scrape_with_crochet():
     # and calls _crawler_result to append that item
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
     eventual = crawl_runner.crawl(
-        scrapper.MDUScrapper)
+        scrapper.UIETScrapper)
     return eventual  # returns a twisted.internet.defer.Deferred
 
 
@@ -43,7 +43,6 @@ def _crawler_result(item, response, spider):
     Ideally this should be done using a proper export pipeline.
     """
     global output_data
-    print(item.get('items'))
     output_data = item
 
 
