@@ -49,4 +49,4 @@ def _crawler_result(item, response, spider):
 
 if __name__ == '__main__':
     from waitress import serve
-    app.run(debug=True, port=5000)
+    serve(app, port=5000)
