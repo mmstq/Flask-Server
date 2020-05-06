@@ -6,10 +6,11 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.signalmanager import dispatcher
 from mdu.mdu.spiders import scrapper
 from datetime import datetime
+import time
 
 app = Flask(__name__)
 
-output_data = []
+output_data = {}
 crawl_runner = CrawlerRunner()
 
 @app.route('/')
@@ -24,9 +25,9 @@ def homepage():
 @app.route('/notice', methods=['GET'])
 def getNotice():
     scrape_with_crochet()
-    return jsonify(output_data)
+    return output_data
 
-@crochet.wait_for(timeout=600)
+@crochet.wait_for(timeout=6)
 def scrape_with_crochet():
     # signal fires when single item is processed
     # and calls _crawler_result to append that item
@@ -41,8 +42,9 @@ def _crawler_result(item, response, spider):
     We're using dict() to decode the items.
     Ideally this should be done using a proper export pipeline.
     """
-    print()
-    output_data = item.get("items")
+    global output_data
+    print(item.get('items'))
+    output_data = item
 
 
 if __name__ == '__main__':
