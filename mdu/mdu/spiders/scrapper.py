@@ -32,12 +32,8 @@ class MDUScrapper(scrapy.Spider):
       date = container.css('.dxgv::text')[3].get()
       title = container.css('.dxgv::text')[1].get()
       link = container.css('a::attr(href)').get()
-      res = dict(index=int(index), date=date, title=title, link='http://mdu.ac.in'+link)
-      # title = container.css('a::text').get()
-      # date = container.css('th::text')[1].getAll()
-      # link = container.css('a::attr(href)').get()
-      # index = int(index)
-      # link =  ('http://uietmdu.com%s%s' % (link.replace('complete', 'Files'), '.pdf')) if '/complete/' in link else link
-      # res = dict(index=index, title=title, date=date, link=link)
+      if 'UpFiles' in link:
+        link = 'http://mdu.ac.in'+link
+      res = dict(index=int(index), date=date, title=title, link=link)
       self.itemList.append(res)
     return {"items":self.itemList}
