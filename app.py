@@ -1,32 +1,63 @@
 import crochet
-crochet.setup()
+import json
 from flask import Flask, jsonify, request
 from scrapy import signals
 from scrapy.crawler import CrawlerRunner
 from scrapy.signalmanager import dispatcher
 from mdu.mdu.spiders import scrapper
-from datetime import datetime
-import time
+import atexit
+import time 
+from bson import json_util
+from database.db_config import Database
 
+
+
+
+crochet.setup()
 app = Flask(__name__)
+
+# Database Setup
+
 
 output_data = {}
 crawl_runner = CrawlerRunner()
 
+
+db = Database()
+mongo = db.init_db(app)
+
+
 @app.route('/')
 def homepage():
-    the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
 
-    return """
-    <h1>Hello heroku</h1>
-    <p>It is currently {time}.</p>
-    """.format(time=the_time)
+    return """<h1>Welcome</h1?"""
 
 @app.route('/notice', methods=['GET'])
 def getNotice():
+
     query = request.args.get('from')
     scrape_with_crochet(query)
-    return output_data
+
+    if query=='mdu':
+        notice = mongo.db.mdu.find({}, {"title":1, "link":1, "date":1, "_id":0})
+        new = [item for item in output_data['items'] if item not in notice]
+        print(new)
+        response = json.loads(json_util.dumps(notice))+new
+        try:
+            return {'items':response}
+        finally:
+            for i in new:
+                try:
+                    mongo.db.mdu.insert_one({"title":i["title"],"link":i["link"],"date":i["date"], "storedOn":time.time})
+                except:
+                    continue
+    else:
+        return output_data
+    # storing latest notice list into database
+    # if(query=="mdu"):
+    #     
+
+    # 
 
 @crochet.wait_for(timeout=6)
 def scrape_with_crochet(query):
@@ -53,4 +84,5 @@ def _crawler_result(item, response, spider):
 
 if __name__ == '__main__':
     from waitress import serve
-    serve(app, host='0.0.0.0', port=8000)
+    app.run(debug=True, host='192.168.43.226', port=5000)
+    #serve(app, host='0.0.0.0', port=8000)
