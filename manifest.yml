@@ -1,4 +1,3 @@
 applications:
  - name: flaskserver
-   host: zuko
    memory: 256M

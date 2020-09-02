@@ -1,12 +1,18 @@
-from flask_pymongo import PyMongo
+from pymongo import MongoClient
 import urllib
-from singleton_decorator import singleton
+import atexit
 
-@singleton
-class Database:
-  mongo = None
-  def init_db(self, app):
-    app.config['MONGO_DBNAME'] = 'notice'
-    app.config['MONGO_URI'] = 'mongodb+srv://mmstq:' + urllib.parse.quote('@Qwerty123') + '@mmstq-dfntv.mongodb.net/notice?retryWrites=true&w=majority'
-    self.mongo = PyMongo(app)
-    return self.mongo
+database_uri = (
+    "mongodb+srv://mmstq:"
+    + urllib.parse.quote("@Qwerty123")
+    + "@mmstq-dfntv.mongodb.net/testcart?retryWrites=true&w=majority"
+)
+mongo = MongoClient(database_uri)
+
+
+def onExit():
+    print("exit")
+    mongo.close()
+
+
+atexit.register(onExit)

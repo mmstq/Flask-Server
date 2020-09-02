@@ -1,4 +1,17 @@
 Flask
+flask_restful
 gunicorn
 crochet
 scrapy
+Flask-PyMongo
+singleton-decorator
+dnspython
+bson
+pymongo
+apscheduler
+flask-jwt-extended
+bcrypt
+waitress
+pyfcm
+# flask-socketIO
+# eventlet

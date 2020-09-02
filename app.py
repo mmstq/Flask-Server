@@ -1,88 +1,53 @@
-import crochet
-import json
-from flask import Flask, jsonify, request
-from scrapy import signals
-from scrapy.crawler import CrawlerRunner
-from scrapy.signalmanager import dispatcher
-from mdu.mdu.spiders import scrapper
+# from  apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask
+from waitress import serve
+from flask_jwt_extended import JWTManager
 import atexit
-import time 
-from bson import json_util
-from database.db_config import Database
+# from flask_socketio import SocketIO, emit
 
-
-
-
-crochet.setup()
 app = Flask(__name__)
+jwt = JWTManager(app)
+# socketIO = SocketIO(app, port=8000)
 
-# Database Setup
-
-
-output_data = {}
-crawl_runner = CrawlerRunner()
-
-
-db = Database()
-mongo = db.init_db(app)
+# from function import sockets
+from routes.encoder import MongoJSONEncoder, ObjectIdConverter
+from routes import user, products, notice
 
 
-@app.route('/')
+# socketIO.on_namespace(sockets.MyCustomNamespace('/username'))
+app.config["JWT_SECRET_KEY"] = "mmstq"
+app.config["JWT_ERROR_MESSAGE_KEY"] = "message"
+app.json_encoder = MongoJSONEncoder
+app.url_map.converters["objectid"] = ObjectIdConverter   
+
+@app.route("/")
 def homepage():
+    return """<h1>Welcome</h1>"""
 
-    return """<h1>Welcome</h1?"""
-
-@app.route('/notice', methods=['GET'])
-def getNotice():
-
-    query = request.args.get('from')
-    scrape_with_crochet(query)
-
-    if query=='mdu':
-        notice = mongo.db.mdu.find({}, {"title":1, "link":1, "date":1, "_id":0})
-        new = [item for item in output_data['items'] if item not in notice]
-        print(new)
-        response = json.loads(json_util.dumps(notice))+new
-        try:
-            return {'items':response}
-        finally:
-            for i in new:
-                try:
-                    mongo.db.mdu.insert_one({"title":i["title"],"link":i["link"],"date":i["date"], "storedOn":time.time})
-                except:
-                    continue
-    else:
-        return output_data
-    # storing latest notice list into database
-    # if(query=="mdu"):
-    #     
-
-    # 
-
-@crochet.wait_for(timeout=6)
-def scrape_with_crochet(query):
-    # signal fires when single item is processed
-    # and calls _crawler_result to append that item
-    dispatcher.connect(_crawler_result, signal=signals.item_scraped)
-    if query=='mdu':
-        eventual = crawl_runner.crawl(
-            scrapper.MDUScrapper)
-    else:
-        eventual = crawl_runner.crawl(
-            scrapper.UIETScrapper)
-    return eventual  # returns a twisted.internet.defer.Deferred
+# @socketIO.on('username_check')
+# def check(username):
+#     # db = mongo.get_database('testcart').get_collection("users")
+#     # print('my_response', username)
+#     #     user = self.db.find_one({'username':username})
+#         if None:
+#             emit("isUsed", True)
+#         else:
+#             emit("isUsed", False)
 
 
-def _crawler_result(item, response, spider):
-    """
-    We're using dict() to decode the items.
-    Ideally this should be done using a proper export pipeline.
-    """
-    global output_data
-    output_data = item
+app.register_blueprint(user.user_routes)
+app.register_blueprint(notice.notice_route)
+app.register_blueprint(products.product_routes)
 
 
-if __name__ == '__main__':
-    from waitress import serve
-    app.run(debug=True, host='192.168.43.226', port=5000)
-    #serve(app, host='0.0.0.0', port=8000)
+@app.before_first_request
+def init():
+    notice.get_db_notice()
+    notice.scheduler.start()
+    atexit.register(lambda: notice.scheduler.shutdown())
+
+
+if __name__ == "__main__":
+    # app.run(debug=True, host="localhost", port=5000)
+    serve(app, host="0.0.0.0", port=8000)
+    # socketIO.run(app, port=8000)
