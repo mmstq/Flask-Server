@@ -49,3 +49,52 @@ class MDUScrapper(scrapy.Spider):
             res = dict(date=date, title=title, link=link, storedOn=dt.timestamp())
             self.itemList.append(res)
         return {"items": self.itemList}
+
+
+class HLTV(scrapy.Spider):
+    name = "hltv"
+
+    start_urls = ["https://www.hltv.org/ranking/teams"]
+
+    itemList = []
+
+    def parse(self, response):
+        teams = response.css(".ranking-header")
+        for i in teams:
+
+            ranks = i.css(".position::text").get().replace("#", "")
+            names = i.css(".name::text").get()
+            logo = i.css(".team-logo img").xpath("@src").get()
+            points = i.css(".points::text").get()[1:5].strip()
+            self.itemList.append(
+                {
+                    "rank": int(ranks),
+                    "name": names,
+                    "points": int(points),
+                    "logo": logo,
+                    "source": "hltv",
+                }
+            )
+        return {"items": self.itemList}
+
+
+class CSSPA(scrapy.Spider):
+    name = "csspa"
+    start_urls = ["https://www.csppa.gg/ranking"]
+    images = []
+
+    def parse(self, response):
+        p = response.selector.css("#comp-kdr1v9lp")
+        points = p.css(".color_11").css(".color_11::text").getall()
+        n = response.selector.css("#comp-kdr1qd67")
+        names = n.css(".color_11 span span::text").getall()
+        for i in range(1, len(names)):
+            a = {
+                "rank": i,
+                "name": names[i].replace("\n", ""),
+                "points": int(points[i].replace("\n", "").replace(",", "")),
+                "source": "csspa",
+            }
+            self.images.append(a)
+        return {"items": self.images}
+

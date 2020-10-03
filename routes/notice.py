@@ -35,16 +35,74 @@ def getNotice():
 
     else:
         scrape_with_crochet(query)
+
         return crawled_notice_items
+
+
+@notice_route.route("/ranking", methods=["POST"])
+def getRanking():
+    d = mongo.get_database("csgo").get_collection("ranking")
+
+    query = request.args.get("from")
+
+    notice = d.find({"source": query}, {"_id": 0}).sort([("rank", 1)]).limit(30)
+    return {"items": json.loads(json_util.dumps(notice))}
+
+
+@notice_route.route("/store", methods=["GET"])
+def store():
+    query = request.args.get("from")
+
+    # if query == "csspa":
+    #     notice = db.find({}, {"_id": 0})
+    #     return {"items": json.loads(json_util.dumps(notice))}
+
+    # else:
+    scrape_with_crochet(query)
+    store_ranking(query)
+
+    # with open('js.json','w') as outfile:
+    #     json.dump(crawled_notice_items, outfile)
+    return crawled_notice_items
+
+
+def store_ranking(query):
+    d = mongo.get_database("csgo").get_collection("ranking")
+    if query == "hltv":
+        for i in crawled_notice_items["items"]:
+            d.insert_one(
+                {
+                    "logo": i["logo"],
+                    "name": i["name"],
+                    "rank": i["rank"],
+                    "source": i["source"],
+                    "points": i["points"],
+                }
+            )
+    else:
+        for i in crawled_notice_items["items"]:
+            d.insert_one(
+                {
+                    "name": i["name"],
+                    "rank": i["rank"],
+                    "source": i["source"],
+                    "points": i["points"],
+                }
+            )
 
 
 @crochet.wait_for(timeout=6)
 def scrape_with_crochet(query):
     dispatcher.connect(_crawler_result, signal=signals.item_scraped)
+
     if query == "mdu":
         eventual = crawl_runner.crawl(scrapper.MDUScrapper)
-    else:
+    elif query == "uiet":
         eventual = crawl_runner.crawl(scrapper.UIETScrapper)
+    elif query == "csspa":
+        eventual = crawl_runner.crawl(scrapper.CSSPA)
+    else:
+        eventual = crawl_runner.crawl(scrapper.HLTV)
     return eventual  # returns a twisted.internet.defer.Deferred
 
 
@@ -54,12 +112,13 @@ def _crawler_result(item, response, spider):
     Ideally this should be done using a proper export pipeline.
     """
     global crawled_notice_items
+    crawled_notice_items = {}
     crawled_notice_items = item
 
 
 @scheduler.scheduled_job("interval", id="save_notice", seconds=120)
 def save_notices_in_db():
-    
+
     scrape_with_crochet("mdu")
 
     global db_stored_notice_items
@@ -67,6 +126,8 @@ def save_notices_in_db():
     notices = crawled_notice_items["items"]
 
     new = [item for item in notices if item not in db_stored_notice_items]
+
+    db_stored_notice_items = []
 
     for i in new:
         title = i["title"]
@@ -94,8 +155,10 @@ def save_notices_in_db():
 
 
 def get_db_notice():
-
-    global db_stored_notice_items
-    db_notices = db.find({}, {"storedOn": 0, "_id": 0}).sort([("storedOn", -1)]).limit(50)
     
+    global db_stored_notice_items
+    db_stored_notice_items = []
+    db_notices = db.find({}, {"storedOn": 0, "_id": 0}).sort([("storedOn", -1)]).limit(50)
+
     db_stored_notice_items = json.loads(json_util.dumps(db_notices))
+

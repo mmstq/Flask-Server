@@ -11,7 +11,8 @@ pymongo
 apscheduler
 flask-jwt-extended
 bcrypt
-waitress
 pyfcm
-# flask-socketIO
-# eventlet
+flask-socketIO
+gevent
+gevent-websocket
+flask-cors
