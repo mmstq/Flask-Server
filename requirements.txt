@@ -6,7 +6,6 @@ scrapy
 Flask-PyMongo
 singleton-decorator
 dnspython
-bson
 pymongo
 apscheduler
 flask-jwt-extended
