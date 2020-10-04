@@ -7,6 +7,7 @@ Flask-PyMongo
 singleton-decorator
 dnspython
 pymongo
+dateutil
 apscheduler
 flask-jwt-extended
 bcrypt
