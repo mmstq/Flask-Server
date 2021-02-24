@@ -29,7 +29,7 @@ class UIETScrapper(scrapy.Spider):
 
 class MDUScrapper(scrapy.Spider):
     name = "mdu"
-    start_urls = ["http://mdu.ac.in/Admin/EventPage.aspx?id=1024"]
+    start_urls = ["https://mdu.ac.in/Admin/EventPage.aspx?id=1024"]
 
     itemList = []
 
@@ -51,7 +51,7 @@ class MDUScrapper(scrapy.Spider):
         return {"items": self.itemList}
 
 
-class HLTV(scrapy.Spider):
+# class HLTV(scrapy.Spider):
     name = "hltv"
 
     start_urls = ["https://www.hltv.org/ranking/teams"]
@@ -78,7 +78,7 @@ class HLTV(scrapy.Spider):
         return {"items": self.itemList}
 
 
-class CSSPA(scrapy.Spider):
+# class CSSPA(scrapy.Spider):
     name = "csspa"
     start_urls = ["https://www.csppa.gg/ranking"]
     images = []
