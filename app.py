@@ -10,6 +10,7 @@ socketIO = SocketIO(app, async_mode="gevent")
 CORS(app=app)
 
 from function import sockets
+
 from routes.encoder import MongoJSONEncoder, ObjectIdConverter
 from routes import user, products, notice
 
@@ -36,6 +37,6 @@ def init():
     notice.scheduler.start()
     atexit.register(lambda: notice.scheduler.shutdown())
 
-
 if __name__ == "__main__":
     app.run()
+    

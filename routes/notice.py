@@ -116,7 +116,7 @@ def _crawler_result(item, response, spider):
     crawled_notice_items = item
 
 
-@scheduler.scheduled_job("interval", id="save_notice", seconds=120)
+# @scheduler.scheduled_job("interval", id="save_notice", seconds=120)
 def save_notices_in_db():
 
     scrape_with_crochet("mdu")

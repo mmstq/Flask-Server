@@ -8,6 +8,7 @@ singleton-decorator
 dnspython
 pymongo
 python-dateutil
+python-dotenv
 apscheduler
 flask-jwt-extended
 bcrypt
