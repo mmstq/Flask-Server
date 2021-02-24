@@ -66,7 +66,7 @@ def store():
     return crawled_notice_items
 
 
-def store_ranking(query):
+# def store_ranking(query):
     d = mongo.get_database("csgo").get_collection("ranking")
     if query == "hltv":
         for i in crawled_notice_items["items"]:
@@ -97,12 +97,12 @@ def scrape_with_crochet(query):
 
     if query == "mdu":
         eventual = crawl_runner.crawl(scrapper.MDUScrapper)
-    elif query == "uiet":
-        eventual = crawl_runner.crawl(scrapper.UIETScrapper)
-    elif query == "csspa":
-        eventual = crawl_runner.crawl(scrapper.CSSPA)
     else:
-        eventual = crawl_runner.crawl(scrapper.HLTV)
+        eventual = crawl_runner.crawl(scrapper.UIETScrapper)
+    # elif query == "csspa":
+    #     eventual = crawl_runner.crawl(scrapper.CSSPA)
+    # else:
+    #     eventual = crawl_runner.crawl(scrapper.HLTV)
     return eventual  # returns a twisted.internet.defer.Deferred
 
 
@@ -116,7 +116,7 @@ def _crawler_result(item, response, spider):
     crawled_notice_items = item
 
 
-# @scheduler.scheduled_job("interval", id="save_notice", seconds=120)
+@scheduler.scheduled_job("interval", id="save_notice", seconds=300)
 def save_notices_in_db():
 
     scrape_with_crochet("mdu")
