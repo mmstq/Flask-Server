@@ -53,20 +53,14 @@ def getRanking():
 def store():
     query = request.args.get("from")
 
-    # if query == "csspa":
-    #     notice = db.find({}, {"_id": 0})
-    #     return {"items": json.loads(json_util.dumps(notice))}
-
-    # else:
     scrape_with_crochet(query)
-    store_ranking(query)
+    # store_ranking(query)
 
-    # with open('js.json','w') as outfile:
-    #     json.dump(crawled_notice_items, outfile)
+
     return crawled_notice_items
 
 
-# def store_ranking(query):
+""" # def store_ranking(query):
     d = mongo.get_database("csgo").get_collection("ranking")
     if query == "hltv":
         for i in crawled_notice_items["items"]:
@@ -88,7 +82,7 @@ def store():
                     "source": i["source"],
                     "points": i["points"],
                 }
-            )
+            ) """
 
 
 @crochet.wait_for(timeout=6)
