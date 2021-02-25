@@ -118,6 +118,7 @@ def _crawler_result(item, response, spider):
 
 @scheduler.scheduled_job("interval", id="save_notice", seconds=300)
 def save_notices_in_db():
+    print('i am running')
 
     scrape_with_crochet("mdu")
 
@@ -159,6 +160,7 @@ def get_db_notice():
     global db_stored_notice_items
     db_stored_notice_items = []
     db_notices = db.find({}, {"storedOn": 0, "_id": 0}).sort([("storedOn", -1)]).limit(50)
+    
 
     db_stored_notice_items = json.loads(json_util.dumps(db_notices))
 
