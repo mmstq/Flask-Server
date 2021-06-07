@@ -25,15 +25,16 @@ def getProduct():
 @product_routes.route("/all", methods=["GET", "POST"])
 def searchProduct():
 
-    products = mongo.db.producproductWithCategoryts.find({})
+    products = db.find({})
     return {"items": json.loads(json_util.dumps(products))}
-
 
 @product_routes.route("/category", methods=["POST"])
 def get_product_by_category():
     data = json.loads(request.get_data())
+    
     query = data["Query"]
     value = data["Value"]
-    products = db.find({query: {"$in": value}})
-    print(products.explain)
+    products = db.find({query: {"$lt": value}})
+
+    print(products.count())
     return {"items": json.loads(json_util.dumps(products))}
