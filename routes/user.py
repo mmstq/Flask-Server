@@ -87,10 +87,10 @@ def login():
     if user:    
         if checkpw(bytes(password, "utf-8"), user["password"]):
             token = create_access_token(identity=[username], expires_delta=False)
-            del user["password"]
+            
             return (
                 jsonify(
-                    {"token": token, "message": "Authentication Success", "user": user}
+                    {"token": token.id, "message": "Authentication Success", "user": user}
                 ),
                 status.ACCEPTED,)
         return jsonify({"message": "Incorrect password"}), status.NOT_FOUND

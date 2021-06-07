@@ -9,7 +9,6 @@ from routes.encoder import MongoJSONEncoder, ObjectIdConverter
 db = mongo.get_database("testcart").get_collection("products")
 product_routes = Blueprint("product_routes", __name__, url_prefix="/products")
 
-
 @product_routes.route("/search", methods=["GET", "POST"])
 def getProduct():
     a = json.loads(request.get_data())
@@ -34,7 +33,7 @@ def get_product_by_category():
     
     query = data["Query"]
     value = data["Value"]
-    products = db.find({query: {"$lt": value}})
+    products = db.find({query: {"$in": value}})
 
     print(products.count())
     return {"items": json.loads(json_util.dumps(products))}
