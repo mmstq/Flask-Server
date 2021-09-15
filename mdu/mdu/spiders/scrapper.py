@@ -14,7 +14,8 @@ class UIETScrapper(scrapy.Spider):
         containers = response.css("tbody").css("tr")[:50]
         for container in containers:
             title = container.css("a::text").extract_first()
-            date = container.css("th::text")[1].extract()
+            date = container.css("td::text").extract()[2]
+            # print(date[2])
             dt = parser.parse(date)
             link = container.css("a::attr(href)").extract_first()
             link = (
