@@ -13,13 +13,14 @@ class UIETScrapper(scrapy.Spider):
         new_items = response.css(".item").css("li")
         for i in new_items:
             
-            href = i.css("a::attr(href)").extract()
-            title = i.css("a::text").extract()
-            item = dict(title=title, date="Latest", link=href, storedOn=parser.parse('7 Aug 2021').timestamp())
+            href = i.css("a::attr(href)").extract_first()
+            title = i.css("a::text").extract_first()
+            item = dict(title=title, date="Latest", link=href, storedOn=parser.parse('7 Aug 2026').timestamp())
+        
             self.itemList.append(item)
         
 
-        containers = response.css("tbody").css("tr")[:50]
+        containers = response.css("tbody").css("tr")[:30]
         for container in containers:
             title = container.css("a::text").extract_first()
             date = container.css("td::text").extract()[2]
